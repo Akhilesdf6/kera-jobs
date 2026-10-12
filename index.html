@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kera Jobs - Kerala Government Jobs</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f5f8fc;color:#172033;text-align:center}
+header{background:#135cbd;color:white;padding:45px 15px}
+h1{font-size:36px;margin:12px}
+main{max-width:650px;margin:30px auto;padding:20px}
+.card{background:white;border-radius:18px;padding:30px;box-shadow:0 4px 18px #0001}
+.btn{display:inline-block;background:#16834a;color:white;padding:16px 28px;border-radius:12px;text-decoration:none;font-weight:bold}
+footer{padding:25px;color:#666}
+</style>
+</head>
+<body>
+<header>
+<h1>📱 Kera Jobs</h1>
+<p>Kerala Government Job Updates</p>
+</header>
+<main>
+<div class="card">
+<h2>Download Kera Jobs</h2>
+<p>Kerala PSC & Government Job Notifications</p>
+<p id="version">Checking latest version...</p>
+<a id="download" class="btn" style="display:none">⬇ Download APK</a>
+<p id="status"></p>
+<h3>What's New</h3>
+<p id="notes">Loading release information...</p>
+</div>
+</main>
+<footer>© 2026 Kera Jobs. Independent job information app.</footer>
+<script>
+fetch('https://api.github.com/repos/Akhilesdf6/kera-jobs/releases/latest')
+.then(r=>{if(!r.ok)throw Error('No release');return r.json()})
+.then(data=>{
+document.getElementById('version').textContent='Version '+data.tag_name;
+document.getElementById('notes').textContent=data.body||'Latest app improvements';
+const apk=data.assets.find(a=>a.name.endsWith('.apk'));
+if(apk){
+const btn=document.getElementById('download');
+btn.href=apk.browser_download_url;
+btn.style.display='inline-block';
+}else{
+document.getElementById('status').textContent='APK not available yet';
+}
+})
+.catch(()=>{
+document.getElementById('version').textContent='Coming soon';
+document.getElementById('notes').textContent='First release pending';
+});
+</script>
+</body>
+</html>

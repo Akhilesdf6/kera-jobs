@@ -6,7 +6,7 @@ on:
     - cron: '23 3 * * *'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   fetch:
@@ -19,6 +19,48 @@ jobs:
           ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
           ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
         run: python automation/adzuna_fetch.py
+
+
+      - name: Publish private jobs feed
+        run: |
+          python - <<'PYTHON'
+          import json
+          from pathlib import Path
+          from urllib.parse import urlparse
+
+          source = Path("data/adzuna_candidates.json")
+          jobs = json.loads(source.read_text())
+          valid = []
+
+          for job in jobs:
+              link = job.get("url", "")
+              parsed = urlparse(link)
+              if (len(job.get("title", "").strip()) >= 3
+                  and parsed.scheme == "https"
+                  and parsed.hostname):
+                  valid.append({
+                      "id": job.get("id", ""),
+                      "title": job["title"],
+                      "company": job.get("company", ""),
+                      "location": job.get("location", ""),
+                      "url": link,
+                      "source": "Adzuna"
+                  })
+
+          Path("data/private_jobs.json").write_text(
+              json.dumps(valid, ensure_ascii=False, indent=2)
+              + "\\n"
+          )
+          print("Published candidates:", len(valid))
+          PYTHON
+
+      - name: Commit updated private feed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/private_jobs.json
+          git diff --cached --quiet || git commit -m "Update Adzuna private jobs feed"
+          git push
 
       - name: Upload candidates for review
         uses: actions/upload-artifact@v4

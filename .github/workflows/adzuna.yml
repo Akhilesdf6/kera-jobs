@@ -1,0 +1,26 @@
+name: Adzuna Job Discovery
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Adzuna jobs
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+        run: python automation/adzuna_fetch.py
+
+      - name: Upload candidates for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: adzuna-candidates
+          path: data/adzuna_candidates.json
+          retention-days: 7

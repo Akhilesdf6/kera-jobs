@@ -2,6 +2,8 @@ name: Adzuna Job Discovery
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '23 3 * * *'
 
 permissions:
   contents: read
